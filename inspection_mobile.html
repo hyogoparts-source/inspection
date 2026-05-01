@@ -193,6 +193,9 @@ function normalize(v) {
     s = s.slice(2, -1);
   }
 
+  // ★追加：英字を除去（数字だけにする）
+  s = s.replace(/[^0-9]/g, "");
+
   return s;
 }
 
