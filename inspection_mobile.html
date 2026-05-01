@@ -109,7 +109,12 @@
 
 <div class="box">
   <label>① 検品用CSVを読み込み</label>
-  <input type="file" id="dataFile" accept=".csv,text/csv">
+
+  <label style="display:block; padding:14px; background:#007bff; color:#fff; text-align:center; border-radius:8px; font-size:18px;">
+    CSVを選択
+    <input type="file" id="dataFile" accept=".csv,text/csv" style="display:none;">
+  </label>
+
   <div class="small">
     必要列：送り状No / 注文番号 / JAN / 品番 / 商品名 / 数量<br>
     ※数量が無い場合は1として扱います。
