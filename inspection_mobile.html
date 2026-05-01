@@ -356,6 +356,7 @@ $("dataFile").addEventListener("change", (e) => {
   const reader = new FileReader();
   reader.onload = () => {
     try {
+      localStorage.setItem("inspectionCsvText", reader.result);
       const rows = parseCSV(reader.result);
       loadData(rows);
     } catch (err) {
@@ -466,7 +467,23 @@ $("downloadBtn").addEventListener("click", () => {
 
 $("resetBtn").addEventListener("click", () => {
   if (!confirm("画面をリセットしますか？検品履歴も消えます。")) return;
+  localStorage.removeItem("inspectionCsvText");
   location.reload();
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+  const savedCsv = localStorage.getItem("inspectionCsvText");
+
+  if (savedCsv) {
+    try {
+      const rows = parseCSV(savedCsv);
+      loadData(rows);
+      showMessage("前回のCSVを復元しました。送り状Noをスキャンしてください。", "ok");
+    } catch (err) {
+      localStorage.removeItem("inspectionCsvText");
+      showMessage("保存CSVの復元に失敗しました。CSVを選択してください。", "warn");
+    }
+  }
 });
 </script>
 </body>
