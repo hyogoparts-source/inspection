@@ -196,6 +196,29 @@ function normalize(v) {
   // 先頭の'削除
   s = s.replace(/^'/, "");
 
+  // 制御文字削除
+  s = s.replace(/[\u0000-\u001F\u007F]/g, "");
+
+  // ゼロ幅スペース削除
+  s = s.replace(/[\u200B-\u200D\uFEFF]/g, "");
+
+  // 前後空白削除
+  s = s.trim();
+
+  return s;
+}
+function normalizeDigits(v) {
+  return normalize(v).replace(/[^0-9]/g, "");
+}
+
+  // Excel式対策 ="123"
+  if (s.startsWith('="') && s.endsWith('"')) {
+    s = s.slice(2, -1);
+  }
+
+  // 先頭の'削除
+  s = s.replace(/^'/, "");
+
   // 制御文字削除（重要）
   s = s.replace(/[\u0000-\u001F\u007F]/g, "");
 
@@ -328,9 +351,9 @@ function loadData(rows) {
 
   for (let i = 1; i < rows.length; i++) {
     const r = rows[i];
-    const invoice = normalize(r[idxInvoice]);
-    const order = normalize(r[idxOrder]);
-    const jan = normalize(r[idxJan]);
+    const invoice = normalizeDigits(r[idxInvoice]);
+const order = normalizeDigits(r[idxOrder]);
+const jan = normalizeDigits(r[idxJan]);
     const qtyRaw = idxQty >= 0 ? normalize(r[idxQty]) : "";
     const qty = Number(qtyRaw) > 0 ? Number(qtyRaw) : 1;
     const code = idxCode >= 0 ? String(r[idxCode] ?? "") : "";
@@ -379,7 +402,7 @@ $("dataFile").addEventListener("change", (e) => {
 $("invoiceInput").addEventListener("keydown", (e) => {
   if (e.key !== "Enter") return;
 
-  const invoice = normalize(e.target.value);
+  const invoice = normalizeDigits(e.target.value);
   e.target.value = "";
 
   if (!invoiceMap.has(invoice)) {
@@ -407,7 +430,7 @@ $("invoiceInput").addEventListener("keydown", (e) => {
 $("janInput").addEventListener("keydown", (e) => {
   if (e.key !== "Enter") return;
 
-  const jan = normalize(e.target.value);
+  const jan = normalizeDigits(e.target.value);
   e.target.value = "";
 
   if (!currentInvoice || !currentOrder) {
