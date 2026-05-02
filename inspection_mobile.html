@@ -183,18 +183,27 @@ let historyRows = [];
 const $ = (id) => document.getElementById(id);
 
 function normalize(v) {
-  let s = String(v ?? "")
-    .replace(/^\uFEFF/, "")
-    .replace(/^'/, "")
-    .trim()
-    .replace(/\s/g, "");
+  let s = String(v ?? "");
 
+  // BOM除去
+  s = s.replace(/^\uFEFF/, "");
+
+  // Excel式対策 ="123"
   if (s.startsWith('="') && s.endsWith('"')) {
     s = s.slice(2, -1);
   }
 
-  // ★追加：英字を除去（数字だけにする）
-  s = s.replace(/[^0-9]/g, "");
+  // 先頭の'削除
+  s = s.replace(/^'/, "");
+
+  // 制御文字削除（重要）
+  s = s.replace(/[\u0000-\u001F\u007F]/g, "");
+
+  // ゼロ幅スペース削除（超重要）
+  s = s.replace(/[\u200B-\u200D\uFEFF]/g, "");
+
+  // 前後空白だけ削除
+  s = s.trim();
 
   return s;
 }
