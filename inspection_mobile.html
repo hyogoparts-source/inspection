@@ -327,8 +327,8 @@ const order = normalizeDigits(r[idxOrder]);
 const jan = normalizeDigits(r[idxJan]);
     const qtyRaw = idxQty >= 0 ? normalize(r[idxQty]) : "";
     const qty = Number(qtyRaw) > 0 ? Number(qtyRaw) : 1;
-    const code = idxCode >= 0 ? String(r[idxCode] ?? "") : "";
-    const name = idxName >= 0 ? String(r[idxName] ?? "") : "";
+   const code = idxCode >= 0 ? String(r[idxCode] || "") : "";
+const name = idxName >= 0 ? String(r[idxName] || "") : "";
 
     if (!invoice || !order || !jan) continue;
 
