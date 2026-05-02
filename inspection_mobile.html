@@ -5,102 +5,25 @@
 <title>出荷検品スマホ版</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    margin: 12px;
-    background: #f5f5f5;
-    color: #222;
-  }
-  h1 {
-    font-size: 22px;
-    margin: 8px 0 12px;
-  }
-  .box {
-    background: #fff;
-    border-radius: 10px;
-    padding: 12px;
-    margin-bottom: 12px;
-    box-shadow: 0 1px 4px rgba(0,0,0,.08);
-  }
-  label {
-    display: block;
-    font-size: 14px;
-    margin-bottom: 6px;
-    font-weight: 600;
-  }
-  input[type="file"] {
-    width: 100%;
-    font-size: 15px;
-  }
-  input[type="text"] {
-    width: 100%;
-    box-sizing: border-box;
-    font-size: 24px;
-    padding: 12px;
-    border: 2px solid #ccc;
-    border-radius: 8px;
-  }
-  button {
-    width: 100%;
-    font-size: 18px;
-    padding: 12px;
-    border: 0;
-    border-radius: 8px;
-    background: #222;
-    color: #fff;
-    margin-top: 8px;
-  }
-  button.secondary {
-    background: #666;
-  }
-  button.danger {
-    background: #b00020;
-  }
-  .status {
-    font-size: 26px;
-    font-weight: 800;
-    text-align: center;
-    padding: 16px;
-    border-radius: 10px;
-    background: #eee;
-  }
-  .ok {
-    background: #d9f7d9 !important;
-    color: #076807;
-  }
-  .ng {
-    background: #ffd6d6 !important;
-    color: #b00020;
-  }
-  .warn {
-    background: #fff0c2 !important;
-    color: #7a4b00;
-  }
-  .small {
-    font-size: 13px;
-    color: #666;
-    line-height: 1.5;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #fff;
-    font-size: 13px;
-  }
-  th, td {
-    border: 1px solid #ddd;
-    padding: 6px;
-    vertical-align: top;
-  }
-  th {
-    background: #eee;
-  }
-  .row-ok {
-    background: #e8f8e8;
-  }
-  .row-ng {
-    background: #ffe8e8;
-  }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 12px; background: #f5f5f5; color: #222; }
+  h1 { font-size: 22px; margin: 8px 0 12px; }
+  .box { background: #fff; border-radius: 10px; padding: 12px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  label { display: block; font-size: 14px; margin-bottom: 6px; font-weight: 600; }
+  input[type="file"] { width: 100%; font-size: 15px; }
+  input[type="text"] { width: 100%; box-sizing: border-box; font-size: 24px; padding: 12px; border: 2px solid #ccc; border-radius: 8px; }
+  button { width: 100%; font-size: 18px; padding: 12px; border: 0; border-radius: 8px; background: #222; color: #fff; margin-top: 8px; }
+  button.secondary { background: #666; }
+  button.danger { background: #b00020; }
+  .status { font-size: 26px; font-weight: 800; text-align: center; padding: 16px; border-radius: 10px; background: #eee; }
+  .ok { background: #d9f7d9 !important; color: #076807; }
+  .ng { background: #ffd6d6 !important; color: #b00020; }
+  .warn { background: #fff0c2 !important; color: #7a4b00; }
+  .small { font-size: 13px; color: #666; line-height: 1.5; }
+  table { width: 100%; border-collapse: collapse; background: #fff; font-size: 13px; }
+  th, td { border: 1px solid #ddd; padding: 6px; vertical-align: top; }
+  th { background: #eee; }
+  .row-ok { background: #e8f8e8; }
+  .row-ng { background: #ffe8e8; }
 </style>
 </head>
 <body>
@@ -109,12 +32,10 @@
 
 <div class="box">
   <label>① 検品用CSVを読み込み</label>
-
   <label style="display:block; padding:14px; background:#007bff; color:#fff; text-align:center; border-radius:8px; font-size:18px;">
     CSVを選択
     <input type="file" id="dataFile" accept=".csv,text/csv" style="display:none;">
   </label>
-
   <div class="small">
     必要列：送り状No / 注文番号 / JAN / 品番 / 商品名 / 数量<br>
     ※数量が無い場合は1として扱います。
@@ -145,15 +66,20 @@
   <label>現在の注文の商品</label>
   <table>
     <thead>
-      <tr>
-        <th>JAN</th>
-        <th>品番</th>
-        <th>商品名</th>
-        <th>必要</th>
-        <th>読取</th>
-      </tr>
+      <tr><th>JAN</th><th>品番</th><th>商品名</th><th>必要</th><th>読取</th></tr>
     </thead>
     <tbody id="currentBody"></tbody>
+  </table>
+</div>
+
+<div class="box">
+  <label>未完了リスト</label>
+  <div id="remainingSummary" class="small">CSV読込後に表示</div>
+  <table>
+    <thead>
+      <tr><th>注文番号</th><th>JAN</th><th>品番</th><th>残数</th></tr>
+    </thead>
+    <tbody id="remainingBody"></tbody>
   </table>
 </div>
 
@@ -161,12 +87,7 @@
   <label>検品履歴</label>
   <table>
     <thead>
-      <tr>
-        <th>時刻</th>
-        <th>送り状No</th>
-        <th>商品JAN</th>
-        <th>結果</th>
-      </tr>
+      <tr><th>時刻</th><th>送り状No</th><th>商品JAN</th><th>結果</th></tr>
     </thead>
     <tbody id="historyBody"></tbody>
   </table>
@@ -174,8 +95,8 @@
 
 <script>
 let dataRows = [];
-let invoiceMap = new Map(); // invoice -> order
-let orderItems = new Map(); // order -> Map(jan -> item)
+let invoiceMap = new Map();
+let orderItems = new Map();
 let currentInvoice = "";
 let currentOrder = "";
 let historyRows = [];
@@ -183,8 +104,7 @@ let historyRows = [];
 const $ = (id) => document.getElementById(id);
 
 function normalize(v) {
-  let s = String(v ?? "");
-
+  let s = String(v || "");
   s = s.replace(/^\uFEFF/, "");
 
   if (s.startsWith('="') && s.endsWith('"')) {
@@ -195,15 +115,69 @@ function normalize(v) {
   s = s.replace(/[\u0000-\u001F\u007F]/g, "");
   s = s.replace(/[\u200B-\u200D\uFEFF]/g, "");
   s = s.trim();
-
   return s;
 }
+
 function normalizeDigits(v) {
   return normalize(v).replace(/[^0-9]/g, "");
 }
 
+function focusInvoice() {
+  const el = $("invoiceInput");
+  el.disabled = false;
+  setTimeout(() => {
+    el.focus();
+    el.select();
+  }, 100);
+}
+
+function focusJan() {
+  const el = $("janInput");
+  el.disabled = false;
+  setTimeout(() => {
+    el.focus();
+    el.select();
+  }, 100);
+}
+
+function playBeep(type) {
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+
+    const ctx = new AudioContextClass();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.frequency.value = type === "ok" ? 880 : 220;
+    gain.gain.value = 0.08;
+
+    osc.start();
+
+    setTimeout(() => {
+      osc.stop();
+      ctx.close();
+    }, type === "ok" ? 120 : 250);
+  } catch (e) {
+    // 音が鳴らない端末では無視
+  }
+}
+
+function vibrate(type) {
+  if (!navigator.vibrate) return;
+  navigator.vibrate(type === "ok" ? 80 : [120, 80, 120]);
+}
+
+function feedback(type) {
+  playBeep(type);
+  vibrate(type);
+}
+
 function csvEscape(v) {
-  const s = String(v ?? "");
+  const s = String(v || "");
   if (/[",\r\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
   return s;
 }
@@ -262,6 +236,12 @@ function showMessage(text, type = "") {
   el.className = "status " + type;
 }
 
+function updateReadyMessage() {
+  showMessage("【準備完了】送り状Noをスキャンしてください", "ok");
+  $("detail").textContent =
+    `送り状 ${invoiceMap.size}件 / 商品 ${dataRows.length}件 読込済`;
+}
+
 function addHistory(invoice, jan, result, memo, order = "", itemCode = "", itemName = "") {
   const now = new Date();
   const time = now.toLocaleString("ja-JP");
@@ -301,6 +281,37 @@ function renderCurrentItems() {
   }
 }
 
+function renderRemainingItems() {
+  const tbody = $("remainingBody");
+  const summary = $("remainingSummary");
+  tbody.innerHTML = "";
+
+  let remainingCount = 0;
+  let remainingOrders = new Set();
+
+  for (const [order, items] of orderItems.entries()) {
+    for (const item of items.values()) {
+      const remain = item.need - item.scanned;
+      if (remain > 0) {
+        remainingCount += remain;
+        remainingOrders.add(order);
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${order}</td>
+          <td>${item.jan}</td>
+          <td>${item.code || ""}</td>
+          <td>${remain}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+  }
+
+  summary.textContent =
+    `未完了：注文 ${remainingOrders.size}件 / 商品残数 ${remainingCount}点`;
+}
+
 function loadData(rows) {
   invoiceMap.clear();
   orderItems.clear();
@@ -314,7 +325,7 @@ function loadData(rows) {
   const idxJan = findHeader(header, ["JAN", "商品JAN", "jan"]);
   const idxQty = findHeader(header, ["数量", "Qty", "Quantity"]);
   const idxCode = findHeader(header, ["品番", "Product Code", "商品コード"]);
-  const idxName = findHeader(header, ["商品名", "Description", "商品名"]);
+  const idxName = findHeader(header, ["商品名", "Description"]);
 
   if (idxInvoice < 0 || idxOrder < 0 || idxJan < 0) {
     throw new Error("列名が不足しています。送り状No・注文番号・JAN が必要です。");
@@ -323,12 +334,12 @@ function loadData(rows) {
   for (let i = 1; i < rows.length; i++) {
     const r = rows[i];
     const invoice = normalizeDigits(r[idxInvoice]);
-const order = normalizeDigits(r[idxOrder]);
-const jan = normalizeDigits(r[idxJan]);
-    const qtyRaw = idxQty >= 0 ? normalize(r[idxQty]) : "";
+    const order = normalizeDigits(r[idxOrder]);
+    const jan = normalizeDigits(r[idxJan]);
+    const qtyRaw = idxQty >= 0 ? normalizeDigits(r[idxQty]) : "";
     const qty = Number(qtyRaw) > 0 ? Number(qtyRaw) : 1;
-   const code = idxCode >= 0 ? String(r[idxCode] || "") : "";
-const name = idxName >= 0 ? String(r[idxName] || "") : "";
+    const code = idxCode >= 0 ? String(r[idxCode] || "") : "";
+    const name = idxName >= 0 ? String(r[idxName] || "") : "";
 
     if (!invoice || !order || !jan) continue;
 
@@ -346,10 +357,10 @@ const name = idxName >= 0 ? String(r[idxName] || "") : "";
 
   if (!dataRows.length) throw new Error("有効なデータ行がありません。");
 
-  showMessage("CSV読込OK。送り状Noをスキャンしてください。", "ok");
-  $("detail").textContent = `読込件数：${dataRows.length}行 / 送り状数：${invoiceMap.size}件`;
-  $("invoiceInput").disabled = false;
-  $("invoiceInput").focus();
+  updateReadyMessage();
+  renderCurrentItems();
+  renderRemainingItems();
+  focusInvoice();
 }
 
 $("dataFile").addEventListener("change", (e) => {
@@ -365,6 +376,7 @@ $("dataFile").addEventListener("change", (e) => {
     } catch (err) {
       showMessage(err.message, "ng");
       $("detail").textContent = "";
+      feedback("ng");
     }
   };
   reader.readAsText(file, "UTF-8");
@@ -384,6 +396,8 @@ $("invoiceInput").addEventListener("keydown", (e) => {
     showMessage("NG：送り状Noが見つかりません", "ng");
     $("detail").textContent = `送り状No：${invoice}`;
     addHistory(invoice, "", "NG", "送り状Noが検品データにありません");
+    feedback("ng");
+    focusInvoice();
     return;
   }
 
@@ -393,9 +407,8 @@ $("invoiceInput").addEventListener("keydown", (e) => {
   showMessage("送り状OK。商品JANをスキャンしてください。", "ok");
   $("detail").textContent = `送り状No：${currentInvoice} / 注文番号：${currentOrder}`;
   renderCurrentItems();
-
-  $("janInput").disabled = false;
-  $("janInput").focus();
+  feedback("ok");
+  focusJan();
 });
 
 $("janInput").addEventListener("keydown", (e) => {
@@ -406,7 +419,8 @@ $("janInput").addEventListener("keydown", (e) => {
 
   if (!currentInvoice || !currentOrder) {
     showMessage("先に送り状Noをスキャンしてください。", "warn");
-    $("invoiceInput").focus();
+    feedback("ng");
+    focusInvoice();
     return;
   }
 
@@ -417,6 +431,8 @@ $("janInput").addEventListener("keydown", (e) => {
     showMessage("NG：この送り状の商品ではありません", "ng");
     $("detail").textContent = `送り状No：${currentInvoice} / 注文番号：${currentOrder} / 読取JAN：${jan}`;
     addHistory(currentInvoice, jan, "NG", "この注文に存在しないJAN", currentOrder);
+    feedback("ng");
+    focusJan();
     return;
   }
 
@@ -424,26 +440,32 @@ $("janInput").addEventListener("keydown", (e) => {
     showMessage("NG：読みすぎです", "ng");
     $("detail").textContent = `JAN：${jan} / 必要数：${item.need} / 読取済：${item.scanned}`;
     addHistory(currentInvoice, jan, "NG", "必要数量を超過", currentOrder, item.code, item.name);
+    feedback("ng");
+    focusJan();
     return;
   }
 
   item.scanned += 1;
   renderCurrentItems();
+  renderRemainingItems();
 
   const complete = Array.from(items.values()).every(x => x.scanned >= x.need);
   if (complete) {
     showMessage("OK：この送り状は検品完了", "ok");
     $("detail").textContent = `送り状No：${currentInvoice} / 注文番号：${currentOrder}`;
     addHistory(currentInvoice, jan, "OK", "検品完了", currentOrder, item.code, item.name);
+    feedback("ok");
 
     currentInvoice = "";
     currentOrder = "";
     $("janInput").disabled = true;
-    $("invoiceInput").focus();
+    focusInvoice();
   } else {
     showMessage("OK：商品一致", "ok");
     $("detail").textContent = `JAN：${jan} / ${item.code || ""} / ${item.name || ""}`;
     addHistory(currentInvoice, jan, "OK", "商品一致", currentOrder, item.code, item.name);
+    feedback("ok");
+    focusJan();
   }
 });
 
@@ -481,7 +503,6 @@ window.addEventListener("DOMContentLoaded", () => {
     try {
       const rows = parseCSV(savedCsv);
       loadData(rows);
-      showMessage("前回のCSVを復元しました。送り状Noをスキャンしてください。", "ok");
     } catch (err) {
       localStorage.removeItem("inspectionCsvText");
       showMessage("保存CSVの復元に失敗しました。CSVを選択してください。", "warn");
