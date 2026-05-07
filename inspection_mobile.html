@@ -312,6 +312,19 @@ function renderRemainingItems() {
     `未完了：注文 ${remainingOrders.size}件 / 商品残数 ${remainingCount}点`;
 }
 
+function isAllComplete() {
+  if (orderItems.size === 0) return false;
+
+  for (const items of orderItems.values()) {
+    for (const item of items.values()) {
+      if (item.scanned < item.need) return false;
+    }
+  }
+
+  return true;
+}
+
+
 function loadData(rows) {
   invoiceMap.clear();
   orderItems.clear();
@@ -429,7 +442,8 @@ $("janInput").addEventListener("keydown", (e) => {
 
   if (!item) {
     showMessage("NG：この送り状の商品ではありません", "ng");
-    $("detail").textContent = `送り状No：${currentInvoice} / 注文番号：${currentOrder} / 読取JAN：${jan}`;
+    $("detail").textContent =
+      `送り状No：${currentInvoice} / 注文番号：${currentOrder} / 読取JAN：${jan}`;
     addHistory(currentInvoice, jan, "NG", "この注文に存在しないJAN", currentOrder);
     feedback("ng");
     focusJan();
@@ -438,7 +452,8 @@ $("janInput").addEventListener("keydown", (e) => {
 
   if (item.scanned >= item.need) {
     showMessage("NG：読みすぎです", "ng");
-    $("detail").textContent = `JAN：${jan} / 必要数：${item.need} / 読取済：${item.scanned}`;
+    $("detail").textContent =
+      `JAN：${jan} / 必要数：${item.need} / 読取済：${item.scanned}`;
     addHistory(currentInvoice, jan, "NG", "必要数量を超過", currentOrder, item.code, item.name);
     feedback("ng");
     focusJan();
@@ -449,10 +464,30 @@ $("janInput").addEventListener("keydown", (e) => {
   renderCurrentItems();
   renderRemainingItems();
 
-  const complete = Array.from(items.values()).every(x => x.scanned >= x.need);
-  if (complete) {
+  const allComplete = isAllComplete();
+  const orderComplete = Array.from(items.values()).every(x => x.scanned >= x.need);
+
+  if (allComplete) {
+    showMessage("全件完了：すべての送り状と商品を読み取りました", "ok");
+    $("detail").textContent =
+      `完了：送り状 ${invoiceMap.size}件 / 商品 ${dataRows.length}件`;
+
+    addHistory(currentInvoice, jan, "OK", "全件完了", currentOrder, item.code, item.name);
+
+    currentInvoice = "";
+    currentOrder = "";
+    $("invoiceInput").disabled = true;
+    $("janInput").disabled = true;
+
+    feedback("ok");
+    return;
+  }
+
+  if (orderComplete) {
     showMessage("OK：この送り状は検品完了", "ok");
-    $("detail").textContent = `送り状No：${currentInvoice} / 注文番号：${currentOrder}`;
+    $("detail").textContent =
+      `送り状No：${currentInvoice} / 注文番号：${currentOrder}`;
+
     addHistory(currentInvoice, jan, "OK", "検品完了", currentOrder, item.code, item.name);
     feedback("ok");
 
@@ -460,13 +495,16 @@ $("janInput").addEventListener("keydown", (e) => {
     currentOrder = "";
     $("janInput").disabled = true;
     focusInvoice();
-  } else {
-    showMessage("OK：商品一致", "ok");
-    $("detail").textContent = `JAN：${jan} / ${item.code || ""} / ${item.name || ""}`;
-    addHistory(currentInvoice, jan, "OK", "商品一致", currentOrder, item.code, item.name);
-    feedback("ok");
-    focusJan();
+    return;
   }
+
+  showMessage("OK：商品一致", "ok");
+  $("detail").textContent =
+    `JAN：${jan} / ${item.code || ""} / ${item.name || ""}`;
+
+  addHistory(currentInvoice, jan, "OK", "商品一致", currentOrder, item.code, item.name);
+  feedback("ok");
+  focusJan();
 });
 
 $("downloadBtn").addEventListener("click", () => {
