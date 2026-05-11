@@ -100,6 +100,7 @@ let orderItems = new Map();
 let currentInvoice = "";
 let currentOrder = "";
 let historyRows = [];
+let completedInvoices = new Set();
 
 const $ = (id) => document.getElementById(id);
 
@@ -484,19 +485,25 @@ $("janInput").addEventListener("keydown", (e) => {
   }
 
   if (orderComplete) {
-    showMessage("OK：この送り状は検品完了", "ok");
-    $("detail").textContent =
-      `送り状No：${currentInvoice} / 注文番号：${currentOrder}`;
 
-    addHistory(currentInvoice, jan, "OK", "検品完了", currentOrder, item.code, item.name);
-    feedback("ok");
+  completedInvoices.add(currentInvoice);
 
-    currentInvoice = "";
-    currentOrder = "";
-    $("janInput").disabled = true;
-    focusInvoice();
-    return;
-  }
+  const doneCount = completedInvoices.size;
+  const totalCount = invoiceMap.size;
+
+  showMessage(`OK：この注文の検品完了（${doneCount}/${totalCount}）`, "ok");
+  $("detail").textContent =
+    `送り状No：${currentInvoice} / 注文番号：${currentOrder}`;
+
+  addHistory(currentInvoice, jan, "OK", "検品完了", currentOrder, item.code, item.name);
+  feedback("ok");
+
+  currentInvoice = "";
+  currentOrder = "";
+  $("janInput").disabled = true;
+  focusInvoice();
+  return;
+}
 
   showMessage("OK：商品一致", "ok");
   $("detail").textContent =
